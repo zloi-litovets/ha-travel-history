@@ -10,7 +10,7 @@
           "verify_ssl": "Перевіряти SSL-сертифікат"
         },
         "data_description": {
-          "url": "Адреса сайту, наприклад https://fly.example.com",
+          "url": "Адреса твого сайту Travel History разом зі схемою",
           "api_token": "Починається з trv_"
         }
       },

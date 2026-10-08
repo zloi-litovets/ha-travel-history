@@ -10,7 +10,7 @@
           "verify_ssl": "Verify SSL certificate"
         },
         "data_description": {
-          "url": "The site's address, e.g. https://fly.example.com",
+          "url": "Address of your Travel History site, including the scheme",
           "api_token": "Starts with trv_"
         }
       },
