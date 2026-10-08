@@ -1,0 +1,34 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "in_flight": {
+        "default": "mdi:airplane-off",
+        "state": { "on": "mdi:airplane" }
+      }
+    },
+    "calendar": {
+      "flights": { "default": "mdi:calendar-month" }
+    },
+    "sensor": {
+      "next_flight": { "default": "mdi:airplane-clock" },
+      "next_flight_departure": { "default": "mdi:airplane-takeoff" },
+      "next_flight_arrival": { "default": "mdi:airplane-landing" },
+      "next_flight_phase": {
+        "default": "mdi:airplane",
+        "state": {
+          "upcoming": "mdi:airplane-clock",
+          "in_air": "mdi:airplane",
+          "landed": "mdi:airplane-landing",
+          "none": "mdi:airplane-off"
+        }
+      },
+      "total_flights": { "default": "mdi:counter" },
+      "total_distance": { "default": "mdi:map-marker-distance" },
+      "total_flight_time": { "default": "mdi:timer-outline" },
+      "airports": { "default": "mdi:airport" },
+      "countries": { "default": "mdi:earth" },
+      "airlines": { "default": "mdi:domain" },
+      "upcoming_flights": { "default": "mdi:calendar-clock" }
+    }
+  }
+}

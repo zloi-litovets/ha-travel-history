@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Підключення до Travel History",
+        "description": "Створи read-only API-токен в адмінці Travel History, розділ **Integrations**.",
+        "data": {
+          "url": "Адреса сервера",
+          "api_token": "API-токен",
+          "verify_ssl": "Перевіряти SSL-сертифікат"
+        },
+        "data_description": {
+          "url": "Адреса сайту, наприклад https://fly.example.com",
+          "api_token": "Починається з trv_"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Повторна автентифікація Travel History",
+        "description": "API-токен для {url} більше не дійсний (прострочений або відкликаний). Створи новий в адмінці, розділ **Integrations**.",
+        "data": { "api_token": "API-токен" }
+      },
+      "reconfigure": {
+        "title": "Зміна налаштувань Travel History",
+        "data": {
+          "url": "Адреса сервера",
+          "api_token": "API-токен",
+          "verify_ssl": "Перевіряти SSL-сертифікат"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Не вдалося підключитися",
+      "invalid_auth": "Невалідний, прострочений або відкликаний API-токен",
+      "invalid_url": "Потрібна адреса з http:// або https://",
+      "unknown": "Неочікувана помилка"
+    },
+    "abort": {
+      "already_configured": "Цей сервер уже налаштовано",
+      "reauth_successful": "Повторна автентифікація успішна",
+      "reconfigure_successful": "Налаштування змінено"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "in_flight": { "name": "У польоті" }
+    },
+    "calendar": {
+      "flights": { "name": "Рейси" }
+    },
+    "sensor": {
+      "next_flight": { "name": "Наступний рейс" },
+      "next_flight_departure": { "name": "Виліт наступного рейсу" },
+      "next_flight_arrival": { "name": "Приліт наступного рейсу" },
+      "next_flight_phase": {
+        "name": "Стан наступного рейсу",
+        "state": {
+          "upcoming": "Заплановано",
+          "in_air": "У повітрі",
+          "landed": "Приземлився",
+          "none": "Немає запланованих рейсів"
+        }
+      },
+      "total_flights": { "name": "Усього рейсів", "unit_of_measurement": "рейсів" },
+      "total_distance": { "name": "Загальна відстань" },
+      "total_flight_time": { "name": "Загальний час у польоті" },
+      "airports": { "name": "Аеропорти", "unit_of_measurement": "аеропортів" },
+      "countries": { "name": "Країни", "unit_of_measurement": "країн" },
+      "airlines": { "name": "Авіакомпанії", "unit_of_measurement": "авіакомпаній" },
+      "upcoming_flights": { "name": "Заплановані рейси", "unit_of_measurement": "рейсів" }
+    }
+  }
+}

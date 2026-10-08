@@ -1,0 +1,12 @@
+{
+  "domain": "travel_history",
+  "name": "Travel History",
+  "codeowners": ["@zloi-litovets"],
+  "config_flow": true,
+  "documentation": "https://github.com/zloi-litovets/ha-travel-history",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/zloi-litovets/ha-travel-history/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

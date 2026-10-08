@@ -1,0 +1,72 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Travel History",
+        "description": "Create a read-only API token in your Travel History admin under **Integrations**.",
+        "data": {
+          "url": "Server URL",
+          "api_token": "API token",
+          "verify_ssl": "Verify SSL certificate"
+        },
+        "data_description": {
+          "url": "The site's address, e.g. https://fly.example.com",
+          "api_token": "Starts with trv_"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Travel History",
+        "description": "The API token for {url} is no longer valid (expired or revoked). Create a new one in the admin under **Integrations**.",
+        "data": { "api_token": "API token" }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Travel History",
+        "data": {
+          "url": "Server URL",
+          "api_token": "API token",
+          "verify_ssl": "Verify SSL certificate"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid, expired or revoked API token",
+      "invalid_url": "Must be an http:// or https:// URL",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This server is already configured",
+      "reauth_successful": "Re-authentication was successful",
+      "reconfigure_successful": "Re-configuration was successful"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "in_flight": { "name": "In flight" }
+    },
+    "calendar": {
+      "flights": { "name": "Flights" }
+    },
+    "sensor": {
+      "next_flight": { "name": "Next flight" },
+      "next_flight_departure": { "name": "Next flight departure" },
+      "next_flight_arrival": { "name": "Next flight arrival" },
+      "next_flight_phase": {
+        "name": "Next flight phase",
+        "state": {
+          "upcoming": "Upcoming",
+          "in_air": "In the air",
+          "landed": "Landed",
+          "none": "No planned flights"
+        }
+      },
+      "total_flights": { "name": "Total flights", "unit_of_measurement": "flights" },
+      "total_distance": { "name": "Total distance" },
+      "total_flight_time": { "name": "Total flight time" },
+      "airports": { "name": "Airports", "unit_of_measurement": "airports" },
+      "countries": { "name": "Countries", "unit_of_measurement": "countries" },
+      "airlines": { "name": "Airlines", "unit_of_measurement": "airlines" },
+      "upcoming_flights": { "name": "Upcoming flights", "unit_of_measurement": "flights" }
+    }
+  }
+}
