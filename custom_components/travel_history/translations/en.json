@@ -31,6 +31,7 @@
     "error": {
       "cannot_connect": "Failed to connect",
       "invalid_auth": "Invalid, expired or revoked API token",
+      "not_travel_history": "No Travel History API at this address. Use the site root, without a path such as /app",
       "invalid_url": "Must be an http:// or https:// URL",
       "unknown": "Unexpected error"
     },

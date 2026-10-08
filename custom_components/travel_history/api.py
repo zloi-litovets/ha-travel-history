@@ -23,6 +23,13 @@ class TravelHistoryConnectionError(TravelHistoryError):
     """The server could not be reached or answered with an error."""
 
 
+class TravelHistoryNotFoundError(TravelHistoryError):
+    """Something answered at this address, but not the Travel History API
+    (404, or a non-JSON page - e.g. the site URL was given with a path like
+    /app, so the request hit the single-page app instead of the API).
+    """
+
+
 class TravelHistoryClient:
     """Thin async wrapper over /api/ext/v1/."""
 
@@ -39,8 +46,15 @@ class TravelHistoryClient:
             ):
                 if resp.status == 401:
                     raise TravelHistoryAuthError("Invalid, expired or revoked API token")
+                if resp.status == 404:
+                    raise TravelHistoryNotFoundError(f"404 from {resp.url}")
                 resp.raise_for_status()
-                return await resp.json()
+                try:
+                    return await resp.json()
+                except (aiohttp.ContentTypeError, ValueError) as err:
+                    raise TravelHistoryNotFoundError(
+                        f"{resp.url} did not answer with JSON ({resp.content_type})"
+                    ) from err
         except TravelHistoryError:
             raise
         except (aiohttp.ClientError, TimeoutError, ValueError) as err:

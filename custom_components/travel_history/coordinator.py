@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -15,6 +15,7 @@ from homeassistant.util import dt as dt_util
 from .api import TravelHistoryAuthError, TravelHistoryClient, TravelHistoryError
 from .const import (
     DOMAIN,
+    LANDED_GRACE,
     LOGGER,
     PHASE_IN_AIR,
     PHASE_LANDED,
@@ -49,12 +50,13 @@ def flight_phase(flight: Flight | None, now: datetime) -> str:
     return PHASE_LANDED
 
 
-def flight_route(flight: Flight) -> str:
-    def code(end: str) -> str:
-        airport = flight[end]["airport"]
-        return airport["iata"] or airport["icao"]
+def airport_code(flight: Flight, end: str) -> str:
+    airport = flight[end]["airport"]
+    return airport["iata"] or airport["icao"]
 
-    return f"{code('departure')} → {code('arrival')}"
+
+def flight_route(flight: Flight) -> str:
+    return f"{airport_code(flight, 'departure')} → {airport_code(flight, 'arrival')}"
 
 
 @dataclass
@@ -62,15 +64,20 @@ class TravelHistoryData:
     upcoming: list[Flight]
     stats: dict[str, Any]
 
-    def next_flight(self, now: datetime) -> Flight | None:
+    def next_flight(self, now: datetime, landed_grace: timedelta = LANDED_GRACE) -> Flight | None:
         """The flight in the air right now, or the next one to depart.
-        The server's upcoming list also keeps a just-landed flight for a
-        grace period - that one is skipped here.
+        A flight that landed less than `landed_grace` ago is kept (phase
+        `landed`) until the following flight departs.
         """
+        landed: Flight | None = None
         for flight in self.upcoming:
             if arrival_time(flight) > now:
+                if landed is not None and now < departure_time(flight):
+                    return landed
                 return flight
-        return None
+            if arrival_time(flight) + landed_grace > now:
+                landed = flight
+        return landed
 
 
 class TravelHistoryCoordinator(DataUpdateCoordinator[TravelHistoryData]):
@@ -98,5 +105,5 @@ class TravelHistoryCoordinator(DataUpdateCoordinator[TravelHistoryData]):
             raise UpdateFailed(f"Error fetching flights: {err}") from err
         return TravelHistoryData(upcoming=upcoming, stats=stats)
 
-    def next_flight(self) -> Flight | None:
-        return self.data.next_flight(dt_util.utcnow())
+    def next_flight(self, landed_grace: timedelta = LANDED_GRACE) -> Flight | None:
+        return self.data.next_flight(dt_util.utcnow(), landed_grace)

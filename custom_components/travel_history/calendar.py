@@ -62,7 +62,9 @@ class FlightsCalendar(TravelHistoryEntity, CalendarEntity):
 
     @property
     def event(self) -> CalendarEvent | None:
-        flight = self.coordinator.next_flight()
+        # A calendar's current event is the one under way or the next one -
+        # no grace for a flight that has already landed.
+        flight = self.coordinator.next_flight(landed_grace=timedelta(0))
         return _to_event(flight) if flight else None
 
     async def async_get_events(

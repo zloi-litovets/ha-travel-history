@@ -26,7 +26,7 @@ The token sees what its owner sees: planned (future) flights only while the owne
 
 | Entity | Description |
 |---|---|
-| `sensor.*_next_flight` | Flight number of the flight in the air now or the next planned one. Attributes: route, airline, aircraft, seat, airports, local times |
+| `sensor.*_next_flight` | Flight number of the flight in the air now or the next planned one. A flight that landed under 30 minutes ago stays here (phase `landed`) unless the following one has already departed. Attributes: route, airline, aircraft, seat, airports (IATA code - null if the airport has none, name, city, country), local times |
 | `sensor.*_next_flight_departure` / `_arrival` | Scheduled times (`timestamp`) - usable directly in time triggers |
 | `sensor.*_next_flight_phase` | `upcoming`, `in_air`, `landed` or `none` |
 | `binary_sensor.*_in_flight` | On while the next flight is between its scheduled departure and arrival |

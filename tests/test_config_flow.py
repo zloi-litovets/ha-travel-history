@@ -49,11 +49,14 @@ async def test_user_flow_invalid_auth_then_recover(hass: HomeAssistant, aioclien
     assert result["type"] is FlowResultType.CREATE_ENTRY
 
 
-async def test_user_flow_cannot_connect(hass: HomeAssistant, aioclient_mock) -> None:
-    aioclient_mock.get(f"{API}whoami/", exc=aiohttp.ClientConnectionError())
+async def test_user_flow_cannot_connect(hass: HomeAssistant, aioclient_mock, caplog) -> None:
+    aioclient_mock.get(f"{API}whoami/", exc=aiohttp.ClientConnectionError("boom"))
     result = await _start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
     assert result["errors"] == {"base": "cannot_connect"}
+    # The reason ends up in the HA log - it used to be swallowed.
+    assert "Could not connect to Travel History" in caplog.text
+    assert "boom" in caplog.text
 
 
 async def test_user_flow_server_error(hass: HomeAssistant, aioclient_mock) -> None:
@@ -61,6 +64,27 @@ async def test_user_flow_server_error(hass: HomeAssistant, aioclient_mock) -> No
     result = await _start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
     assert result["errors"] == {"base": "cannot_connect"}
+
+
+async def test_user_flow_not_travel_history(hass: HomeAssistant, aioclient_mock, caplog) -> None:
+    # Site URL given with a path: the request lands on the SPA's HTML page.
+    aioclient_mock.get(
+        f"{URL}/app/api/ext/v1/whoami/", text="<!doctype html>", headers={"Content-Type": "text/html"}
+    )
+    result = await _start(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {**USER_INPUT, CONF_URL: f"{URL}/app"}
+    )
+    assert result["errors"] == {"base": "not_travel_history"}
+    assert "No Travel History API" in caplog.text
+    assert TOKEN not in caplog.text
+
+
+async def test_user_flow_not_found(hass: HomeAssistant, aioclient_mock) -> None:
+    aioclient_mock.get(f"{API}whoami/", status=HTTPStatus.NOT_FOUND)
+    result = await _start(hass)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
+    assert result["errors"] == {"base": "not_travel_history"}
 
 
 async def test_user_flow_invalid_url(hass: HomeAssistant, aioclient_mock) -> None:

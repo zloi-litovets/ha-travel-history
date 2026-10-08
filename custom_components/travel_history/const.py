@@ -15,6 +15,13 @@ REQUEST_TIMEOUT = 30
 SCAN_INTERVAL = timedelta(minutes=5)
 UPCOMING_LIMIT = 10
 
+# How long a just-landed flight stays the "next flight" (phase `landed`)
+# before the sensors move on - unless the following flight has already
+# departed by then. Must stay under the server's own grace: flights/upcoming/
+# keeps a landed flight for only 1 hour (FUTURE_FLIGHT_GRACE in
+# travel_history/models.py), after which it's gone from the data entirely.
+LANDED_GRACE = timedelta(minutes=30)
+
 PHASE_UPCOMING = "upcoming"
 PHASE_IN_AIR = "in_air"
 PHASE_LANDED = "landed"

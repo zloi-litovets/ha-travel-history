@@ -31,6 +31,7 @@
     "error": {
       "cannot_connect": "Не вдалося підключитися",
       "invalid_auth": "Невалідний, прострочений або відкликаний API-токен",
+      "not_travel_history": "За цією адресою немає API Travel History. Вкажи корінь сайту, без шляху на кшталт /app",
       "invalid_url": "Потрібна адреса з http:// або https://",
       "unknown": "Неочікувана помилка"
     },

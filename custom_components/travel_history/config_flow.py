@@ -17,7 +17,12 @@ from homeassistant.helpers.selector import (
     TextSelectorType,
 )
 
-from .api import TravelHistoryAuthError, TravelHistoryClient, TravelHistoryError
+from .api import (
+    TravelHistoryAuthError,
+    TravelHistoryClient,
+    TravelHistoryError,
+    TravelHistoryNotFoundError,
+)
 from .const import DOMAIN, LOGGER
 
 _TOKEN_SELECTOR = TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))
@@ -50,7 +55,11 @@ class TravelHistoryConfigFlow(ConfigFlow, domain=DOMAIN):
             await TravelHistoryClient(session, url, token).whoami()
         except TravelHistoryAuthError:
             return {"base": "invalid_auth"}
-        except TravelHistoryError:
+        except TravelHistoryNotFoundError as err:
+            LOGGER.warning("No Travel History API at %s: %s", url, err)
+            return {"base": "not_travel_history"}
+        except TravelHistoryError as err:
+            LOGGER.warning("Could not connect to Travel History at %s: %s", url, err)
             return {"base": "cannot_connect"}
         except Exception:  # noqa: BLE001
             LOGGER.exception("Unexpected error validating Travel History server")

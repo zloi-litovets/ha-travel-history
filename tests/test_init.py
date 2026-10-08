@@ -35,6 +35,9 @@ async def test_setup_and_entities(hass: HomeAssistant, config_entry, mock_api, u
     assert next_flight.state == "PS101"
     assert next_flight.attributes["route"] == "KBP → AMS"
     assert next_flight.attributes["seat"] == "12A"
+    assert next_flight.attributes["departure_iata"] == "KBP"
+    assert next_flight.attributes["arrival_iata"] == "AMS"
+    assert next_flight.attributes["arrival_country"] == "-"
 
     departure = hass.states.get("sensor.fly_example_com_next_flight_departure")
     expected = dt_util.parse_datetime(upcoming[0]["departure"]["time"]).replace(microsecond=0)
@@ -68,6 +71,48 @@ async def test_in_flight_and_skips_landed(hass: HomeAssistant, config_entry, aio
     assert hass.states.get("sensor.fly_example_com_next_flight_phase").state == "in_air"
     assert hass.states.get("binary_sensor.fly_example_com_in_flight").state == STATE_ON
     assert hass.states.get("calendar.fly_example_com_flights").state == STATE_ON
+
+
+async def test_keeps_just_landed_flight(hass: HomeAssistant, config_entry, aioclient_mock) -> None:
+    now = dt_util.utcnow()
+    flights = [
+        # Landed 20 min ago, the next one departs in an hour.
+        make_flight(1, now - timedelta(hours=3, minutes=20)),
+        make_flight(2, now + timedelta(hours=1)),
+    ]
+    aioclient_mock.get(f"{API}flights/upcoming/", json={"flights": flights, "count": 2})
+    aioclient_mock.get(f"{API}stats/summary/", json=STATS)
+    await _setup(hass, config_entry)
+
+    assert hass.states.get("sensor.fly_example_com_next_flight").state == "PS1"
+    assert hass.states.get("sensor.fly_example_com_next_flight_phase").state == "landed"
+    assert hass.states.get("binary_sensor.fly_example_com_in_flight").state == STATE_OFF
+
+
+async def test_drops_landed_flight_after_grace(hass: HomeAssistant, config_entry, aioclient_mock) -> None:
+    now = dt_util.utcnow()
+    flights = [
+        make_flight(1, now - timedelta(hours=3, minutes=40)),
+        make_flight(2, now + timedelta(hours=1)),
+    ]
+    aioclient_mock.get(f"{API}flights/upcoming/", json={"flights": flights, "count": 2})
+    aioclient_mock.get(f"{API}stats/summary/", json=STATS)
+    await _setup(hass, config_entry)
+
+    assert hass.states.get("sensor.fly_example_com_next_flight").state == "PS2"
+    assert hass.states.get("sensor.fly_example_com_next_flight_phase").state == "upcoming"
+
+
+async def test_airport_without_iata(hass: HomeAssistant, config_entry, aioclient_mock) -> None:
+    flight = make_flight(1, dt_util.utcnow() + timedelta(days=1))
+    flight["arrival"]["airport"]["iata"] = None
+    aioclient_mock.get(f"{API}flights/upcoming/", json={"flights": [flight], "count": 1})
+    aioclient_mock.get(f"{API}stats/summary/", json=STATS)
+    await _setup(hass, config_entry)
+
+    attributes = hass.states.get("sensor.fly_example_com_next_flight").attributes
+    assert attributes["arrival_iata"] is None
+    assert attributes["route"] == "KBP → EHAM"
 
 
 async def test_no_planned_flights(hass: HomeAssistant, config_entry, aioclient_mock) -> None:

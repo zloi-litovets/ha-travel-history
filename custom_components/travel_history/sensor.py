@@ -42,11 +42,17 @@ def _next_flight_attributes(flight: Flight | None) -> dict[str, Any]:
         "registration": flight["aircraft"]["registration"],
         "ticket_class": flight["ticket_class"],
         "seat": flight["seat"],
+        # Real IATA only (null when the airport has none); `route` falls back
+        # to ICAO for display.
+        "departure_iata": flight["departure"]["airport"]["iata"],
         "departure_airport": flight["departure"]["airport"]["name"],
         "departure_city": flight["departure"]["airport"]["city"],
+        "departure_country": flight["departure"]["airport"]["country"],
         "departure_local_time": flight["departure"]["local_time"],
+        "arrival_iata": flight["arrival"]["airport"]["iata"],
         "arrival_airport": flight["arrival"]["airport"]["name"],
         "arrival_city": flight["arrival"]["airport"]["city"],
+        "arrival_country": flight["arrival"]["airport"]["country"],
         "arrival_local_time": flight["arrival"]["local_time"],
         "duration_minutes": flight["duration_minutes"],
         "distance_km": flight["distance_km"],
