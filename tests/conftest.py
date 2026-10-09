@@ -54,6 +54,39 @@ def make_flight(flight_id: int, departure: datetime, hours: float = 3, **extra: 
     }
 
 
+def make_live(start: datetime, hours: float = 3, **extra: Any) -> dict[str, Any]:
+    """A flight's `live` block departing at `start`: on schedule, matched,
+    nothing reported yet. Dict values in `extra` are merged into the
+    matching sub-block.
+    """
+    departure = start
+    arrival = start + timedelta(hours=hours)
+    live = {
+        "status": "scheduled",
+        "tracking": "active",
+        "provider": "flightaware",
+        "updated_at": departure.isoformat(),
+        "cancelled": False,
+        "schedule_changed": False,
+        "departure": {
+            "scheduled": departure.isoformat(), "estimated": departure.isoformat(), "actual": None,
+            "runway": None, "delay_minutes": 0, "terminal": "D", "gate": None,
+        },
+        "arrival": {
+            "scheduled": arrival.isoformat(), "estimated": arrival.isoformat(), "actual": None,
+            "runway": None, "delay_minutes": 0, "terminal": None, "gate": None, "baggage_belt": None,
+        },
+        "aircraft": {"registration": "PH-BXY", "type": "B738"},
+        "diversion": None,
+    }
+    for key, value in extra.items():
+        if isinstance(value, dict) and isinstance(live.get(key), dict):
+            live[key] = {**live[key], **value}
+        else:
+            live[key] = value
+    return live
+
+
 STATS = {
     "flights": 214,
     "distance_km": 412345,
@@ -90,4 +123,5 @@ def mock_api(aioclient_mock, upcoming):
     aioclient_mock.get(f"{API}whoami/", json={"token": {"name": "HA"}, "can_see_future_flights": True})
     aioclient_mock.get(f"{API}flights/upcoming/", json={"flights": upcoming, "count": len(upcoming)})
     aioclient_mock.get(f"{API}stats/summary/", json=STATS)
+    aioclient_mock.get(f"{API}tracking/events/", json={"events": [], "count": 0})
     return aioclient_mock

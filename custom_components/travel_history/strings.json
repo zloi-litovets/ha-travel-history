@@ -58,9 +58,28 @@
           "upcoming": "Upcoming",
           "in_air": "In the air",
           "landed": "Landed",
+          "cancelled": "Cancelled",
           "none": "No planned flights"
         }
       },
+      "next_flight_status": {
+        "name": "Next flight status",
+        "state": {
+          "scheduled": "Scheduled",
+          "delayed": "Delayed",
+          "departed": "Left the gate",
+          "en_route": "En route",
+          "landed": "Landed",
+          "arrived": "Arrived",
+          "cancelled": "Cancelled",
+          "diverted": "Diverted"
+        }
+      },
+      "next_flight_expected_departure": { "name": "Next flight expected departure" },
+      "next_flight_expected_arrival": { "name": "Next flight expected arrival" },
+      "next_flight_departure_delay": { "name": "Next flight departure delay" },
+      "next_flight_gate": { "name": "Next flight gate" },
+      "next_flight_baggage_belt": { "name": "Next flight baggage belt" },
       "total_flights": { "name": "Total flights", "unit_of_measurement": "flights" },
       "total_distance": { "name": "Total distance" },
       "total_flight_time": { "name": "Total flight time" },
