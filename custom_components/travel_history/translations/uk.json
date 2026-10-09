@@ -58,9 +58,28 @@
           "upcoming": "Заплановано",
           "in_air": "У повітрі",
           "landed": "Приземлився",
+          "cancelled": "Скасовано",
           "none": "Немає запланованих рейсів"
         }
       },
+      "next_flight_status": {
+        "name": "Статус наступного рейсу",
+        "state": {
+          "scheduled": "За розкладом",
+          "delayed": "Затримка",
+          "departed": "Відʼїхав від гейту",
+          "en_route": "У польоті",
+          "landed": "Приземлився",
+          "arrived": "Прибув",
+          "cancelled": "Скасовано",
+          "diverted": "Переспрямовано"
+        }
+      },
+      "next_flight_expected_departure": { "name": "Очікуваний виліт наступного рейсу" },
+      "next_flight_expected_arrival": { "name": "Очікуваний приліт наступного рейсу" },
+      "next_flight_departure_delay": { "name": "Затримка вильоту наступного рейсу" },
+      "next_flight_gate": { "name": "Гейт наступного рейсу" },
+      "next_flight_baggage_belt": { "name": "Багажна стрічка наступного рейсу" },
       "total_flights": { "name": "Усього рейсів", "unit_of_measurement": "рейсів" },
       "total_distance": { "name": "Загальна відстань" },
       "total_flight_time": { "name": "Загальний час у польоті" },

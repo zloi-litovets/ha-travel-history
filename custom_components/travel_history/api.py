@@ -81,3 +81,17 @@ class TravelHistoryClient:
 
     async def stats(self) -> dict[str, Any]:
         return await self._get("stats/summary/")
+
+    async def tracking_events(
+        self, after_id: int | None = None, since: datetime | None = None, limit: int = 100
+    ) -> list[dict[str, Any]]:
+        """Changes noticed by live tracking, oldest first. Raises
+        TravelHistoryNotFoundError on a server without live tracking.
+        """
+        params = {"limit": str(limit)}
+        if after_id is not None:
+            params["after_id"] = str(after_id)
+        if since is not None:
+            params["since"] = since.isoformat()
+        payload = await self._get("tracking/events/", params)
+        return payload["events"]

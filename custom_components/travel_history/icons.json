@@ -19,9 +19,26 @@
           "upcoming": "mdi:airplane-clock",
           "in_air": "mdi:airplane",
           "landed": "mdi:airplane-landing",
+          "cancelled": "mdi:airplane-remove",
           "none": "mdi:airplane-off"
         }
       },
+      "next_flight_status": {
+        "default": "mdi:radar",
+        "state": {
+          "delayed": "mdi:clock-alert-outline",
+          "en_route": "mdi:airplane",
+          "landed": "mdi:airplane-landing",
+          "arrived": "mdi:airplane-landing",
+          "cancelled": "mdi:airplane-remove",
+          "diverted": "mdi:airplane-marker"
+        }
+      },
+      "next_flight_expected_departure": { "default": "mdi:airplane-takeoff" },
+      "next_flight_expected_arrival": { "default": "mdi:airplane-landing" },
+      "next_flight_departure_delay": { "default": "mdi:clock-alert-outline" },
+      "next_flight_gate": { "default": "mdi:exit-run" },
+      "next_flight_baggage_belt": { "default": "mdi:bag-suitcase-outline" },
       "total_flights": { "default": "mdi:counter" },
       "total_distance": { "default": "mdi:map-marker-distance" },
       "total_flight_time": { "default": "mdi:timer-outline" },

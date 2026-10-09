@@ -19,15 +19,17 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import dt as dt_util
 
-from .const import PHASES
+from .const import LIVE_STATUSES, PHASES
 from .coordinator import (
     Flight,
     TravelHistoryConfigEntry,
     TravelHistoryCoordinator,
     arrival_time,
     departure_time,
+    flight_live,
     flight_phase,
     flight_route,
+    live_time,
 )
 from .entity import TravelHistoryEntity
 
@@ -56,7 +58,46 @@ def _next_flight_attributes(flight: Flight | None) -> dict[str, Any]:
         "arrival_local_time": flight["arrival"]["local_time"],
         "duration_minutes": flight["duration_minutes"],
         "distance_km": flight["distance_km"],
+        **_live_attributes(flight),
     }
+
+
+def _live_attributes(flight: Flight) -> dict[str, Any]:
+    """Live-tracking extras - all null while the flight isn't tracked."""
+    live = flight_live(flight)
+    departure = (live or {}).get("departure") or {}
+    arrival = (live or {}).get("arrival") or {}
+    diversion = (live or {}).get("diversion")
+    return {
+        "live_status": live["status"] if live else None,
+        "live_registration": ((live or {}).get("aircraft") or {}).get("registration"),
+        "schedule_changed": live["schedule_changed"] if live else None,
+        "departure_gate": departure.get("gate"),
+        "departure_terminal": departure.get("terminal"),
+        "arrival_gate": arrival.get("gate"),
+        "arrival_terminal": arrival.get("terminal"),
+        "baggage_belt": arrival.get("baggage_belt"),
+        "diverted_to": diversion.get("icao") if diversion else None,
+    }
+
+
+def _live_status(flight: Flight | None) -> str | None:
+    status = (flight_live(flight) or {}).get("status")
+    return status if status in LIVE_STATUSES else None
+
+
+def _live_end(flight: Flight | None, end: str) -> dict[str, Any]:
+    live = flight_live(flight)
+    return (live or {}).get(end) or {}
+
+
+def _end_attributes(end_key: str, extra: tuple[str, ...] = ()) -> Callable[[Flight | None], dict[str, Any]]:
+    def attributes(flight: Flight | None) -> dict[str, Any]:
+        end = _live_end(flight, end_key)
+        keys = ("scheduled", "actual", "delay_minutes", *extra)
+        return {key: end.get(key) for key in keys} if end else {}
+
+    return attributes
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -88,6 +129,50 @@ NEXT_FLIGHT_SENSORS: tuple[NextFlightSensorDescription, ...] = (
         translation_key="next_flight_arrival",
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=lambda flight, _now: arrival_time(flight) if flight else None,
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_status",
+        translation_key="next_flight_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=LIVE_STATUSES,
+        value_fn=lambda flight, _now: _live_status(flight),
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_expected_departure",
+        translation_key="next_flight_expected_departure",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda flight, _now: live_time(_live_end(flight, "departure")),
+        attributes_fn=_end_attributes("departure", ("terminal", "gate")),
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_expected_arrival",
+        translation_key="next_flight_expected_arrival",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=lambda flight, _now: live_time(_live_end(flight, "arrival")),
+        attributes_fn=_end_attributes("arrival", ("terminal", "gate", "baggage_belt")),
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_departure_delay",
+        translation_key="next_flight_departure_delay",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
+        value_fn=lambda flight, _now: _live_end(flight, "departure").get("delay_minutes"),
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_gate",
+        translation_key="next_flight_gate",
+        value_fn=lambda flight, _now: _live_end(flight, "departure").get("gate"),
+        attributes_fn=lambda flight: (
+            {"terminal": _live_end(flight, "departure").get("terminal")} if flight_live(flight) else {}
+        ),
+    ),
+    NextFlightSensorDescription(
+        key="next_flight_baggage_belt",
+        translation_key="next_flight_baggage_belt",
+        value_fn=lambda flight, _now: _live_end(flight, "arrival").get("baggage_belt"),
+        attributes_fn=lambda flight: (
+            {"terminal": _live_end(flight, "arrival").get("terminal")} if flight_live(flight) else {}
+        ),
     ),
     NextFlightSensorDescription(
         key="next_flight_phase",
