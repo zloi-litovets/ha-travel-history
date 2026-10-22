@@ -76,7 +76,7 @@ def make_live(start: datetime, hours: float = 3, **extra: Any) -> dict[str, Any]
             "scheduled": arrival.isoformat(), "estimated": arrival.isoformat(), "actual": None,
             "runway": None, "delay_minutes": 0, "terminal": None, "gate": None, "baggage_belt": None,
         },
-        "aircraft": {"registration": "PH-BXY", "type": "B738"},
+        "aircraft": {"registration": "PH-BXY", "type": "B738", "registration_changed": False, "type_changed": False},
         "diversion": None,
     }
     for key, value in extra.items():

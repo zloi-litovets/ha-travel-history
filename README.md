@@ -46,11 +46,11 @@ When the server has live tracking enabled (Travel History admin → **Tracking**
 | `sensor.*_next_flight_gate` | Departure gate, terminal as an attribute |
 | `sensor.*_next_flight_baggage_belt` | Baggage belt on arrival, terminal as an attribute |
 
-`sensor.*_next_flight` also gets `live_status`, `departure_gate`, `departure_terminal`, `arrival_gate`, `arrival_terminal`, `baggage_belt`, `live_registration`, `schedule_changed` and `diverted_to` attributes (all null while the flight isn't tracked).
+`sensor.*_next_flight` also gets `live_status`, `departure_gate`, `departure_terminal`, `arrival_gate`, `arrival_terminal`, `baggage_belt`, `live_aircraft_type` (ICAO code, e.g. `B738`), `live_registration`, `aircraft_type_changed`, `registration_changed` (the provider reports a different aircraft than the recorded one), `schedule_changed` and `diverted_to` attributes (all null while the flight isn't tracked).
 
 `*_next_flight_departure` / `_arrival` keep showing the recorded (scheduled) times. Phase and **In flight** follow live times when the flight is tracked, so a delayed flight stays `upcoming` / `in_air` for as long as the delay lasts.
 
-Every change live tracking reports is also fired as a `travel_history_flight_change` event. Data: `kind` (`schedule_change`, `delay`, `gate`, `terminal`, `baggage`, `registration`, `status`, `cancelled`, `diverted`), `field`, `old`, `new`, `flight_id`, `flight_number`, `at`, `entry_id`. Only changes after Home Assistant started are fired.
+Every change live tracking reports is also fired as a `travel_history_flight_change` event. Data: `kind` (`schedule_change`, `delay`, `gate`, `terminal`, `baggage`, `registration`, `aircraft_type`, `status`, `cancelled`, `diverted`), `field`, `old`, `new`, `flight_id`, `flight_number`, `at`, `entry_id`. Only changes after Home Assistant started are fired.
 
 Data is polled every 5 minutes; the server itself checks the provider every 15 minutes to 2 hours depending on how close the flight is. Works with servers without live tracking too, where these sensors just stay `unknown`.
 

@@ -68,9 +68,15 @@ def _live_attributes(flight: Flight) -> dict[str, Any]:
     departure = (live or {}).get("departure") or {}
     arrival = (live or {}).get("arrival") or {}
     diversion = (live or {}).get("diversion")
+    aircraft = (live or {}).get("aircraft") or {}
     return {
         "live_status": live["status"] if live else None,
-        "live_registration": ((live or {}).get("aircraft") or {}).get("registration"),
+        "live_aircraft_type": aircraft.get("type"),
+        "live_registration": aircraft.get("registration"),
+        # Different from the recorded aircraft - null while not tracked (or
+        # on a server that doesn't report it).
+        "aircraft_type_changed": aircraft.get("type_changed"),
+        "registration_changed": aircraft.get("registration_changed"),
         "schedule_changed": live["schedule_changed"] if live else None,
         "departure_gate": departure.get("gate"),
         "departure_terminal": departure.get("terminal"),

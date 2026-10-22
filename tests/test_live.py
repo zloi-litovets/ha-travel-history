@@ -62,6 +62,9 @@ async def test_live_sensors(hass: HomeAssistant, config_entry, aioclient_mock) -
     assert attributes["departure_gate"] == "D7"
     assert attributes["baggage_belt"] == "12"
     assert attributes["live_registration"] == "PH-BXY"
+    assert attributes["live_aircraft_type"] == "B738"
+    assert attributes["aircraft_type_changed"] is False
+    assert attributes["registration_changed"] is False
     # Scheduled sensors stay on the recorded times.
     scheduled = hass.states.get(f"{SENSOR}_departure")
     assert dt_util.parse_datetime(scheduled.state) == departure.replace(microsecond=0)
@@ -75,6 +78,20 @@ async def test_untracked_flight_has_unknown_live_sensors(hass: HomeAssistant, co
     attributes = hass.states.get(SENSOR).attributes
     assert attributes["live_status"] is None
     assert attributes["departure_gate"] is None
+    assert attributes["live_aircraft_type"] is None
+    assert attributes["aircraft_type_changed"] is None
+
+
+async def test_aircraft_change(hass: HomeAssistant, config_entry, aioclient_mock) -> None:
+    departure = dt_util.utcnow() + timedelta(hours=3)
+    live = make_live(departure, aircraft={"type": "A21N", "type_changed": True,
+                                          "registration": "PH-AXA", "registration_changed": True})
+    await _setup(hass, config_entry, aioclient_mock, [make_flight(1, departure, live=live)])
+    attributes = hass.states.get(SENSOR).attributes
+    assert attributes["live_aircraft_type"] == "A21N"
+    assert attributes["aircraft_type_changed"] is True
+    assert attributes["live_registration"] == "PH-AXA"
+    assert attributes["registration_changed"] is True
 
 
 async def test_server_unknown_status_is_ha_unknown(hass: HomeAssistant, config_entry, aioclient_mock) -> None:
